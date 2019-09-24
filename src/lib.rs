@@ -18,18 +18,18 @@ pub fn decode(cipher: &str) -> String {
 
 fn codec(text: &str) -> String {
     let mut alphabet: HashMap<char, char> = HashMap::new();
-    for i in 0..26 {
-        alphabet.insert(ALPHA.chars().nth(i).unwrap(), AHPLA.chars().nth(i).unwrap());
-    }
+    ALPHA.chars().zip(AHPLA.chars()).for_each(|(k, v)| {
+        alphabet.insert(k, v);
+    });
 
     let mut result = String::new();
     for x in text.chars() {
         if x.is_ascii_alphabetic() {
-            let c = x.to_lowercase().next().unwrap();
+            let c = x.to_ascii_lowercase();
             let encoded_char: &char = alphabet
                 .get(&c)
-                .unwrap_or_else(|| panic!("character {} not found in array", &c));
-            result.push(encoded_char.clone());
+                .expect(format!("character {} not found in array", &c).as_ref());
+            result.push(*encoded_char);
         } else if x.is_ascii_alphanumeric() && x != ' ' {
             result.push(x);
         }
@@ -38,15 +38,11 @@ fn codec(text: &str) -> String {
 }
 
 fn add_spaces(string: &str) -> String {
-    let mut result = String::new();
-    let mut it = 0;
-
-    for x in string.chars(){
-        if it%5==0 {
-            result.push(' ');
-        }
-        result.push(x);
-        it += 1;
-    }
-    result
+    string.chars().enumerate().fold(String::new(), |acc, (count, c)|{
+       if count %5 == 0{
+           format!("{} {}", acc, c)
+       } else {
+           format!("{}{}", acc, c)
+       }
+    })
 }
